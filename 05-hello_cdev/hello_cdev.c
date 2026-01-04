@@ -4,13 +4,36 @@
 
 static int major;
 
-static int __init my_init(void) {
-    printk("Lewiatan - hello from module\n");
+static ssize_t my_read(struct file *file, char __user *u, size_t l, loff_t *o)
+{
+    printk("hello_cdev: read called\n");
     return 0;
 }
 
-static void __exit my_exit(void) {
-    printk("Lewiatan - goodbye from module\n");
+static struct file_operations fops =
+{
+    .owner = THIS_MODULE,
+    .open = NULL,
+    .release = NULL,
+    .read = my_read,
+    .write = NULL,
+};
+
+static int __init my_init(void)
+{
+    major = register_chrdev(0, "hello_cdev", &fops);
+    if (major < 0) {
+        printk("hello_cdev: failed to register character device\n");
+        return major;
+    }
+    printk("hello_cdev: registered character device with major number %d\n", major);
+    return 0;
+}
+
+static void __exit my_exit(void)
+{
+    unregister_chrdev(major, "hello_cdev");
+    printk("hello_cdev: goodbye from module\n"); 
 }
 
 module_init(my_init);
