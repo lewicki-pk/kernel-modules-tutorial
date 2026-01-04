@@ -6,3 +6,6 @@ all:
 	make -C $(KDIR) M=$(PWD) modules
 clean:
 	make -C $(KDIR) M=$(PWD) clean
+
+test:
+	gcc -o cdev_test test.c
